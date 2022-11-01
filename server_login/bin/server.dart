@@ -41,7 +41,7 @@ final _staticHandler =
 
 // Router instance to handler requests.
 final _router = shelf_router.Router()
-  ..get('/login/<data>', _loginHandler);
+  ..get('/login/<username>/<password>/<ignore>', _loginHandler);
 
 String _jsonEncode(Object? data) =>
     const JsonEncoder.withIndent(' ').convert(data);
@@ -50,11 +50,9 @@ const _jsonHeaders = {
   'content-type': 'application/json',
 };
 
-Response _loginHandler(Request request, String data) {
-  RegExp name = new RegExp(r"(0|86|17951)?(13[0-9]|15[0-35-9]|17[0678]|18[0-9]|14[57])[0-9]{8}");
-  final userNameStream = name.allMatches(data);
-  final userName = userNameStream.group(0);
-  final accessCode = data;
+Response _loginHandler(Request request, String username, String password, String ignore) {
+  final userName = username;
+  final accessCode = password;
   return Response.ok(
     _jsonEncode({'用户名': userName, '密码': accessCode}),
     headers: {
