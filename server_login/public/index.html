@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" sizes="64x64" href="https://github.com/dart-lang/samples/blob/master/server/simple/public/64.png?raw=true">
+  <title>pkg:shelf example</title>
+</head>
+
+<style>
+  body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-family: sans-serif;
+  }
+
+  p {
+    margin-top: 1rem;
+    font-size: large;
+    max-width: 600px;
+  }
+
+  img {
+    max-width: 70vw;
+  }
+
+  code {
+    background: #eee;
+    padding: 3px;
+  }
+</style>
+
+<body>
+<h1 style="text-align: center;">学号：20191060222</h1>
+<h1 style="text-align: center;">姓名：曾程</h1>
+<ul>
+  <form action="/sum/username/accesscode" method="get">
+    用户名: &nbsp;<input type="text" name="username" />
+    <br>
+    密码: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="password" name="accesscode" />
+    <br>
+    <input type="submit" value="Submit"/>
+  </form>
+</ul>
