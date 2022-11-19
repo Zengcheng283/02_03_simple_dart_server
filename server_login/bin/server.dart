@@ -1,6 +1,5 @@
-import 'dart:convert';
 import 'dart:io';
-import 'dart:core';
+import 'dart:convert';
 
 import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart' as shelf_io;
@@ -41,7 +40,45 @@ final _staticHandler =
 
 // Router instance to handler requests.
 final _router = shelf_router.Router()
-  ..get('/login/<username>/<password>/<ignore>', _loginHandler);
+  ..get('/helloworld', _helloWorldHandler)
+  ..post('/register', (Request request) async {
+    var s = await request.readAsString();
+    File f = File('public/db.txt');
+    f.writeAsString('$s\n', mode: FileMode.append);
+    return Response.seeOther('/');
+  })
+  ..post('/login', (Request request) async {
+    final String s = await request.readAsString();
+    Stream lines = File('public/db.txt')
+        .openRead()
+        .transform(utf8.decoder)
+        .transform(const LineSplitter());
+    var success = false;
+    await for (final line in lines) {
+      if (s.compareTo(line) == 0) {
+        success = true;
+        return Response.ok(
+          _jsonEncode({'state': '登录成功'}),
+          headers: {
+            ..._jsonHeaders,
+            'Cache-Control': 'public, max-age=604800, immutable',
+          },
+        );
+      }
+    }
+    if (success == false) {
+      return Response.ok(
+        _jsonEncode({'state': '登录失败'}),
+        headers: {
+          ..._jsonHeaders,
+          'Cache-Control': 'public, max-age=604800, immutable',
+        },
+      );
+    }
+    return Response.seeOther('/');
+  });
+
+Response _helloWorldHandler(Request request) => Response.ok('Hello, World!');
 
 String _jsonEncode(Object? data) =>
     const JsonEncoder.withIndent(' ').convert(data);
@@ -50,11 +87,11 @@ const _jsonHeaders = {
   'content-type': 'application/json',
 };
 
-Response _loginHandler(Request request, String username, String password, String ignore) {
-  final userName = username;
-  final accessCode = password;
+Response _sumHandler(Request request, String a, String b) {
+  final aNum = int.parse(a);
+  final bNum = int.parse(b);
   return Response.ok(
-    _jsonEncode({'用户名': userName, '密码': accessCode}),
+    _jsonEncode({'a': aNum, 'b': bNum, 'sum': aNum * bNum, 'methods': '乘法'}),
     headers: {
       ..._jsonHeaders,
       'Cache-Control': 'public, max-age=604800, immutable',
@@ -63,3 +100,25 @@ Response _loginHandler(Request request, String username, String password, String
 }
 
 final _watch = Stopwatch();
+
+int _requestCount = 0;
+
+final _dartVersion = () {
+  final version = Platform.version;
+  return version.substring(0, version.indexOf(' '));
+}();
+
+Response _infoHandler(Request request) => Response(
+      200,
+      headers: {
+        ..._jsonHeaders,
+        'Cache-Control': 'no-store',
+      },
+      body: _jsonEncode(
+        {
+          'Dart version': _dartVersion,
+          'uptime': _watch.elapsed.toString(),
+          'requestCount': ++_requestCount,
+        },
+      ),
+    );
